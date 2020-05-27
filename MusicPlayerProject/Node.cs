@@ -10,7 +10,7 @@ namespace MusicPlayerProject
     {
         public T name;
         public T path;
-        public Node<T> next;
+        public Node<T> next, prev;
 
         //constuctor to create a new node/track
         public Node(T name, T path)
