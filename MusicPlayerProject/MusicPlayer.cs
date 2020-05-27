@@ -258,18 +258,18 @@ namespace MusicPlayerProject
                         Node<string> track = new Node<string>(name, path);
                         Node<string> current;
                         //if list is empty make first node the head
-                        if (trackList.Count == 0)
-                        {
-                            trackList.AddFirst(track);
+                        //if (trackList.Count == 0)
+                        //{
+                            //trackList.AddFirst(track);
                             //head = track;
-                        }
-                        else
-                        {
+                        //}
+                        //else
+                        //{
                             current = trackList.Last();
                             current.next = track;
                             //track.prev = current;
-                            trackList.AddLast(track);
-                        }           
+                            //trackList.AddLast(track);
+                        //}           
                     }
                     //declare the head of the list
                     //Node<string> head = trackList.First.Value;
