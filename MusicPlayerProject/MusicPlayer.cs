@@ -28,7 +28,7 @@ namespace MusicPlayerProject
         //global pipe and linkedList
         private PipeClient pipeClient;
         //create instance of trackList linked list with node objects stored as items
-        LinkedList<Node<string>> trackList = new LinkedList<Node<string>>();
+        TrackLinkedList<string> trackList = new TrackLinkedList<string>();
 
         //default contructor
         public MusicPlayer()
@@ -236,7 +236,7 @@ namespace MusicPlayerProject
 
         private void BtnAddTracks_Click(object sender, EventArgs e)
         {
-            LinkedList<Node<string>> sortedTrackList = new LinkedList<Node<string>>();
+            TrackLinkedList<string> sortedTrackList = new TrackLinkedList<string>();
             using (OpenFileDialog fileDialog = new OpenFileDialog()
             {
                 Multiselect = true,
@@ -244,7 +244,6 @@ namespace MusicPlayerProject
                 Filter = "WMA|*.wma|WMV|*.wmv|WAV|*wav|MP3|*.mp3|MP4|*.mp4|MKV|*.mkv"
             })
             {
-
                 if (fileDialog.ShowDialog() == DialogResult.OK)
                 {
                     sortedTrackList = trackList;
@@ -257,17 +256,17 @@ namespace MusicPlayerProject
                         //obtain path and name information as strings
                         string name = Path.GetFileNameWithoutExtension(file.FullName);
                         string path = file.FullName;
-
+                        trackList.AddLastNode(name, path);
                         //create a node object with name and path as attributes
-                        Node<string> track = new Node<string>(name, path);
+                        //Node<string> track = new Node<string>(name, path);
                         //if list isn't empty, set next and prev variables
-                        if (trackList.Count != 0)
-                        {
-                            Node<string> current = trackList.Last.Value;
-                            current.next = track;
-                            track.prev = current;
-                        }
-                        trackList.AddLast(track);
+                        //if (trackList.getLength() > 1)
+                        //{
+                        //    Node<string> current = trackList.tail;
+                        //    current.next = track;
+                        //    track.prev = current;
+                        //}
+                        //trackList.AddLast(track);
                         //track.Next = trackList.
                         //if list is empty make first node the head
                         //if (trackList.Count == 0)
@@ -290,10 +289,10 @@ namespace MusicPlayerProject
                     
 
                     //declare the head of the list
-                    Node<string> head = trackList.First.Value;
+                    //Node<string> head = trackList.First.Value;
                     //make a new head object in the place of the sorted list
                     Node<string> newHead = null;
-                    newHead = trackList.First.Value.mergeSort(head);
+                    newHead = trackList.MergeSort(trackList.getHead());
                     //clear list (in case of adding songs multiple times)
                     sortedTrackList.Clear();
                     lbTracks.Items.Clear();
@@ -301,8 +300,8 @@ namespace MusicPlayerProject
 
                     while (temp != null)
                     {
-                        sortedTrackList.AddLast(temp);
-                        lbTracks.Items.Add(temp.name);
+                        sortedTrackList.AddLastNode(temp.getName(), temp.getPath());
+                        lbTracks.Items.Add(temp.getName());
                         temp = temp.next;
                     }
                     //{
@@ -379,14 +378,14 @@ namespace MusicPlayerProject
                 
             }
         }
-   
+    
         private void DisplayTracks(Node<string> newHead)
         {
             lbTracks.Items.Clear();
             Node<string> temp = newHead;
             while (temp != null)
             {
-                lbTracks.Items.Add(temp.name);
+                lbTracks.Items.Add(temp.getName());
                 temp = temp.next;
             }
             //if (sortedList.Count > 0)

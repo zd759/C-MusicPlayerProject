@@ -56,6 +56,7 @@
     <Compile Include="PipeClient.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TrackLinkedList.cs" />
     <EmbeddedResource Include="MusicPlayer.resx">
       <DependentUpon>MusicPlayer.cs</DependentUpon>
     </EmbeddedResource>
