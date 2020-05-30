@@ -42,7 +42,7 @@
             this.gbMediaPlayer = new System.Windows.Forms.GroupBox();
             this.lbTracks = new System.Windows.Forms.ListBox();
             this.tbTrackSearch = new System.Windows.Forms.TextBox();
-            this.btnTrackSearch = new System.Windows.Forms.Button();
+            this.btnBinarySearch = new System.Windows.Forms.Button();
             this.axWindowsMediaPlayer = new AxWMPLib.AxWindowsMediaPlayer();
             this.btnUserLogin = new System.Windows.Forms.Button();
             this.lblPassword = new System.Windows.Forms.Label();
@@ -63,6 +63,7 @@
             this.tbSendMessage = new System.Windows.Forms.TextBox();
             this.lbLogDisplay = new System.Windows.Forms.ListBox();
             this.gpApps = new System.Windows.Forms.GroupBox();
+            this.btnLoadTrackList = new System.Windows.Forms.Button();
             this.gbMediaPlayer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer)).BeginInit();
             this.gpServer.SuspendLayout();
@@ -154,11 +155,12 @@
             // 
             // btnSaveTrackList
             // 
+            this.btnSaveTrackList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSaveTrackList.Location = new System.Drawing.Point(113, 59);
             this.btnSaveTrackList.Name = "btnSaveTrackList";
-            this.btnSaveTrackList.Size = new System.Drawing.Size(98, 34);
+            this.btnSaveTrackList.Size = new System.Drawing.Size(98, 19);
             this.btnSaveTrackList.TabIndex = 3;
-            this.btnSaveTrackList.Text = "Save Track List";
+            this.btnSaveTrackList.Text = "Save Tracks";
             this.btnSaveTrackList.UseVisualStyleBackColor = true;
             this.btnSaveTrackList.Click += new System.EventHandler(this.BtnSaveTrackList_Click);
             // 
@@ -175,10 +177,11 @@
             // gbMediaPlayer
             // 
             this.gbMediaPlayer.BackColor = System.Drawing.Color.LemonChiffon;
+            this.gbMediaPlayer.Controls.Add(this.btnLoadTrackList);
             this.gbMediaPlayer.Controls.Add(this.lbTracks);
             this.gbMediaPlayer.Controls.Add(this.btnDeleteTrack);
             this.gbMediaPlayer.Controls.Add(this.tbTrackSearch);
-            this.gbMediaPlayer.Controls.Add(this.btnTrackSearch);
+            this.gbMediaPlayer.Controls.Add(this.btnBinarySearch);
             this.gbMediaPlayer.Controls.Add(this.axWindowsMediaPlayer);
             this.gbMediaPlayer.Controls.Add(this.btnStop);
             this.gbMediaPlayer.Controls.Add(this.btnPlay);
@@ -206,20 +209,20 @@
             // 
             // tbTrackSearch
             // 
-            this.tbTrackSearch.Location = new System.Drawing.Point(9, 99);
+            this.tbTrackSearch.Location = new System.Drawing.Point(9, 109);
             this.tbTrackSearch.Name = "tbTrackSearch";
             this.tbTrackSearch.Size = new System.Drawing.Size(202, 20);
             this.tbTrackSearch.TabIndex = 8;
             // 
-            // btnTrackSearch
+            // btnBinarySearch
             // 
-            this.btnTrackSearch.Location = new System.Drawing.Point(97, 125);
-            this.btnTrackSearch.Name = "btnTrackSearch";
-            this.btnTrackSearch.Size = new System.Drawing.Size(114, 38);
-            this.btnTrackSearch.TabIndex = 14;
-            this.btnTrackSearch.Text = "Search";
-            this.btnTrackSearch.UseVisualStyleBackColor = true;
-            this.btnTrackSearch.Click += new System.EventHandler(this.BtnTrackSearch_Click);
+            this.btnBinarySearch.Location = new System.Drawing.Point(97, 135);
+            this.btnBinarySearch.Name = "btnBinarySearch";
+            this.btnBinarySearch.Size = new System.Drawing.Size(114, 28);
+            this.btnBinarySearch.TabIndex = 14;
+            this.btnBinarySearch.Text = "Binary Search";
+            this.btnBinarySearch.UseVisualStyleBackColor = true;
+            this.btnBinarySearch.Click += new System.EventHandler(this.BtnBinarySearch_Click);
             // 
             // axWindowsMediaPlayer
             // 
@@ -420,6 +423,17 @@
             this.gpApps.TabStop = false;
             this.gpApps.Text = "Apps";
             // 
+            // btnLoadTrackList
+            // 
+            this.btnLoadTrackList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLoadTrackList.Location = new System.Drawing.Point(113, 84);
+            this.btnLoadTrackList.Name = "btnLoadTrackList";
+            this.btnLoadTrackList.Size = new System.Drawing.Size(98, 19);
+            this.btnLoadTrackList.TabIndex = 16;
+            this.btnLoadTrackList.Text = "Load Tracks";
+            this.btnLoadTrackList.UseVisualStyleBackColor = true;
+            this.btnLoadTrackList.Click += new System.EventHandler(this.BtnLoadTrackList_Click);
+            // 
             // MusicPlayer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -479,9 +493,10 @@
         private System.Windows.Forms.ListBox lbLogDisplay;
         private AxWMPLib.AxWindowsMediaPlayer axWindowsMediaPlayer;
         private System.Windows.Forms.GroupBox gpApps;
-        private System.Windows.Forms.Button btnTrackSearch;
+        private System.Windows.Forms.Button btnBinarySearch;
         private System.Windows.Forms.TextBox tbTrackSearch;
         private System.Windows.Forms.ListBox lbTracks;
+        private System.Windows.Forms.Button btnLoadTrackList;
     }
 }
 

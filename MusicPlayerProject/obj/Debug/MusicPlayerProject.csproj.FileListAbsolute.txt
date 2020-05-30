@@ -13,3 +13,12 @@ F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerPro
 F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\obj\Debug\MusicPlayerProject.exe
 F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\obj\Debug\MusicPlayerProject.pdb
 F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\obj\Debug\MusicPlayerProject.MusicPlayer.resources
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\CsvHelper.dll
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\System.Threading.Tasks.Extensions.dll
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\CsvHelper.xml
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\bin\Debug\System.Threading.Tasks.Extensions.xml
+F:\tafe\Dip\Programming\Visual Studio Projects\MusicPlayerProject\MusicPlayerProject\obj\Debug\MusicPlayerProject.csproj.CopyComplete

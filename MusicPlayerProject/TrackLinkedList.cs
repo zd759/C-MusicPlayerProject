@@ -1,5 +1,6 @@
 ﻿using System;
-using System.IO;
+using System.Collections;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace MusicPlayerProject
@@ -8,7 +9,7 @@ namespace MusicPlayerProject
      * and binary search for better organisation and encapsulation. It is filled with objects of type node upon
      * user request (when the user adds songs to the media player).
     */
-    class TrackLinkedList<T> where T : IComparable<T>
+    class TrackLinkedList<T> where T : IComparable<T>//, IEnumerable<T>
     {
         //head and tail nodes attributes of track list
         Node<T> head, tail;
@@ -32,31 +33,30 @@ namespace MusicPlayerProject
         //method to add a node object to the end of the list while maintaining correct head and tail values
         public void AddLastNode(T name, T path)
         {
-            try
+            if (name != null)
             {
-                if (name != null)
+                //create new object to add to list
+                Node<T> newSong = new Node<T>(name, path);
+                if (head != null)
                 {
-                    //create new object to add to list
-                    Node<T> newSong = new Node<T>(name, path);
-                    //call method to set tail new node
-                    SetTailNode();
                     //use tails 'next' attribute to create new node
                     //also set new objects 'previous' attribute to tail node
                     //this ensures the list is doubly linked
-                    if (head != null)
-                    {
-                        tail.next = newSong;
-                        newSong.prev = tail;
-                    }
-                    //case if list is empty
-                    else
-                    {
-                        head = newSong;
-                    }
+                    tail.next = newSong;
+                    newSong.prev = tail;
+                    SetTailNode();
                 }
-                //catch errors
-            } catch (IOException e){
-                MessageBox.Show ("Error: " + e);
+                //case if list is empty
+                else
+                {
+                    head = newSong;
+                    //call method to set tail new node
+                    SetTailNode();
+                }
+            }
+            else
+            {
+                return;
             }
         }
 
@@ -77,7 +77,7 @@ namespace MusicPlayerProject
         public void SetTailNode()
         {
             Node<T> temp = head;
-            while (temp != null)
+            while (temp.next != null)
             {
                 temp = temp.next;
             }
@@ -118,16 +118,20 @@ namespace MusicPlayerProject
             if ((left.getName() as IComparable).CompareTo(right.getName()) < 0)
             {
                 left.next = SortedMerge(left.next, right);
+                left.next.prev = left;
+                left.prev = null;
                 return left;
             }
             else
             {
                 right.next = SortedMerge(left, right.next);
+                right.next.prev = right;
+                right.prev = null;
                 return right;
             }
         }
 
-        //method to merge sort the linked list
+        //method to merge sort the linked list, split and putting back together
         public Node<T> MergeSort(Node<T> head)
         {
             //if head is null
@@ -148,77 +152,25 @@ namespace MusicPlayerProject
             return SortedMerge(left, right);
         }
 
-        //alternative MergeSort method optimised for the linked list structure
-        public Node<T> OptimisedMergeSort(Node<T> head)
-        {
-            int blockSize = 1, blockCount;
-            do
-            {
-                //Maintain two lists pointing to two blocks, left and right
-                Node<T> left = head, right = head, tail = null;
-                head = null; //Start a new list
-                blockCount = 0;
-
-                //Walk through entire list in blocks of size blockCount
-                while (left != null)
-                {
-                    blockCount++;
-
-                    //Advance right to start of next block, measure size of left list while doing so
-                    int leftSize = 0, rightSize = blockSize;
-                    for (; leftSize < blockSize && right != null; ++leftSize)
-                        right = right.next;
-
-                    //Merge two list until their individual ends
-                    bool leftEmpty = leftSize == 0, rightEmpty = rightSize == 0 || right == null;
-                    while (!leftEmpty || !rightEmpty)
-                    {
-                        Node<T> smaller;
-                        //Using <= instead of < gives us sort stability
-                        if (rightEmpty || (!leftEmpty && left.getName().CompareTo(right.getName()) <= 0))
-                        {
-                            smaller = left; left = left.next; --leftSize;
-                            leftEmpty = leftSize == 0;
-                        }
-                        else
-                        {
-                            smaller = right; right = right.next; --rightSize;
-                            rightEmpty = rightSize == 0 || right == null;
-                        }
-                        //Update new list
-                        if (tail != null)
-                            tail.next = smaller;
-                        else
-                            head = smaller;
-                        tail = smaller;
-                    }
-                    //right now points to next block for left
-                    left = right;
-                }
-                //terminate new list, take care of case when input list is null
-                if (tail != null)
-                    tail.next = null;
-                //Lg n iterations
-                blockSize <<= 1;
-            } while (blockCount > 1);
-            return head;
-        }//end optimised mergeSort
-
-
-        //method to clear the entire linked list of all nodes
-        public void Clear()
-        {
-            if (head != null)
-            {
-                Remove(head.getName());
-            }
-        }
-
         //method to remove a node from the list given the name - uses binary search to find the node
         public void Remove(T name)
         {
-            //insert binary search method to find the node
-            BinarySearch(name);
+            //use binary search method to find the node with input name
+            Node<T> target = BinarySearch(name);
+            if (target == null)
+            {
+                return;
+            }
+            else
+            {
+                Node<T> next = target.next;
+                Node<T> prev = target.prev;
+                //link the surrounding nodes together
+                prev.next = next;
+                next.prev = prev;
+                //delete the unlinked node
+                target = null;
+            }
         }
 
         public Node<T> BinarySearch(T target)
@@ -227,34 +179,37 @@ namespace MusicPlayerProject
             //int pointer = 0;
             if (head == null)
             {
-                MessageBox.Show("Error: the track list is empty");
+                MessageBox.Show("Error: The track list is empty");
                 return null;
             }
-            Node<T> start = head, end = null;
-            while (start != end || end != null)
+            //else if (head.getName().CompareTo(target) == 0)
+            //{
+            //    return head;
+            //}
+            Node<T> start = head, end = tail;
+            //recursive search function
+            while ((end != null) || (!(start.getName().CompareTo(end.getName()) == 0)))
             {
-                Node<T> middle = GetMiddle(start);
+                //find the middle of the list
+                Node<T> middle = GetMiddleNode(start, end);
                 //pointer++;
-                if ((middle.getName().CompareTo(target)) == 0)
+                if (middle.getName().CompareTo(target) == 0)
                 {
                     return middle;
                 }
-                else if ((middle.getName().CompareTo(target)) < 0) //if less than
-                {
-                    end = middle.prev;
-                }
-                else if ((middle.getName().CompareTo(target)) > 0) //if more than
-                {
+                else if (middle.getName().CompareTo(target) < 0) //if middle less than target
+                {//set end of list to be serached as before the mid point
                     start = middle.next;
                 }
-                //else
-                //{
-                //    middle = middle.next;
-                //}
+                else if (middle.getName().CompareTo(target) > 0) //if middle more than target
+                {//set the start of the list to after the mid point
+                    end = middle;
+                }
             }
             return null;
         }
 
+        //method to find the middle of the list, must traverse the list so does not have good time complexity
         private Node<T> GetMiddleNode(Node<T> start, Node<T> end)
         {
             if (start == null)
@@ -262,12 +217,46 @@ namespace MusicPlayerProject
                 return null;
             }
             Node<T> fast = start, slow = start;
-            while (fast != end && fast.next != end)
+            while ((!(fast.getName().CompareTo(end.getName()) == 0)) && (!(fast.next.getName().CompareTo(end.getName()) == 0)))
             {
                 fast = fast.next.next;
                 slow = slow.next;
             }
             return slow;
         }
+
+        public Node<T> CheckForDuplicate(T name)
+        {
+            Node<T> temp = head;
+            if ((temp != null) && (temp.getName().CompareTo(name) == 0))
+            {
+                return temp;
+            }
+            while (temp.next != null)
+            {
+                temp = temp.next;
+                if (temp.getName().CompareTo(name) == 0)
+                {
+                    return temp;
+                }
+            }
+            return null;
+        }
+
+        //public IEnumerator<T> GetEnumerator()
+        //{
+        //    Node<T> current = head;
+        //    while (current != null)
+        //    {
+        //        yield return current.getName();
+        //        current = current.next;
+        //    }
+        //    //return new LinkedListEnumerator<T>(this);
+        //}
+
+        //IEnumerator IEnumerable.GetEnumerator()
+        //{
+        //    return this.GetEnumerator();
+        //}
     }
 }

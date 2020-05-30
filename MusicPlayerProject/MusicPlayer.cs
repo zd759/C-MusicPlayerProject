@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CsvHelper; //using 3rd party library
 
 namespace MusicPlayerProject
 {
@@ -29,6 +31,8 @@ namespace MusicPlayerProject
         private PipeClient pipeClient;
         //create instance of trackList linked list with node objects stored as items
         TrackLinkedList<string> trackList = new TrackLinkedList<string>();
+        //create another list for storing the final sorted list
+        TrackLinkedList<string> sortedTrackList = new TrackLinkedList<string>();
 
         //default contructor
         public MusicPlayer()
@@ -199,10 +203,7 @@ namespace MusicPlayerProject
         //--------------------MEDIA PLAYER GROUP BOX--------------------//
 
         //global variable for current track
-        string currentTrack = "a";
-        string defaultPath = "./";
-        //Node<string> current;
-
+        Node<string> currentTrack = null;
 
         //method to disable functions until login is successful
         private void DisableMediaPlayerButtons()
@@ -216,7 +217,7 @@ namespace MusicPlayerProject
             btnNext.Enabled = false;
             btnPrevious.Enabled = false;
             btnSaveTrackList.Enabled = false;
-            btnTrackSearch.Enabled = false;
+            btnBinarySearch.Enabled = false;
 
         }
         //method to enable functions once login is successful
@@ -231,12 +232,12 @@ namespace MusicPlayerProject
             btnNext.Enabled = true;
             btnPrevious.Enabled = true;
             btnSaveTrackList.Enabled = true;
-            btnTrackSearch.Enabled = true;
+            btnBinarySearch.Enabled = true;
         }
 
         private void BtnAddTracks_Click(object sender, EventArgs e)
         {
-            TrackLinkedList<string> sortedTrackList = new TrackLinkedList<string>();
+            //use open file dialog
             using (OpenFileDialog fileDialog = new OpenFileDialog()
             {
                 Multiselect = true,
@@ -244,11 +245,12 @@ namespace MusicPlayerProject
                 Filter = "WMA|*.wma|WMV|*.wmv|WAV|*wav|MP3|*.mp3|MP4|*.mp4|MKV|*.mkv"
             })
             {
+                //if the user presses 'ok'
                 if (fileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    sortedTrackList = trackList;
-                    //Node<string> head;
-                    //List<Track> files = new List<Track>();
+                    //set the sorted track list to the unsorted - used if user add files multiple times
+                    //this serves to correct the node values of 'next' and 'prev' in the unsorted list 
+                    trackList = sortedTrackList;
                     foreach (string fileName in fileDialog.FileNames)
                     {
                         //put this info into a file object
@@ -256,193 +258,162 @@ namespace MusicPlayerProject
                         //obtain path and name information as strings
                         string name = Path.GetFileNameWithoutExtension(file.FullName);
                         string path = file.FullName;
-                        trackList.AddLastNode(name, path);
-                        //create a node object with name and path as attributes
-                        //Node<string> track = new Node<string>(name, path);
-                        //if list isn't empty, set next and prev variables
-                        //if (trackList.getLength() > 1)
-                        //{
-                        //    Node<string> current = trackList.tail;
-                        //    current.next = track;
-                        //    track.prev = current;
-                        //}
-                        //trackList.AddLast(track);
-                        //track.Next = trackList.
-                        //if list is empty make first node the head
-                        //if (trackList.Count == 0)
-                        //{
-                        //   trackList.AddFirst(track);
-                        //head = track;
-                        //}
-                        //else
-                        //{
-                        //current = trackList.Last();
-                        //current.next = track;
-                        //track.prev = current;
-                        //trackList.AddLast(track);
-                        //}
-                        //if ((trackList.First.Value.next.ToString() == null) && (trackList.First.Next.Value != null))
-                        //{
-                        //    trackList.First.Value.next = trackList.First.Next.Value;
-                        //}
+                        //if list isn't empty, check for dupes
+                        if (trackList.GetLengthOfList() > 0)
+                        {
+                            Node<string> checkDupe = trackList.CheckForDuplicate(name);
+                            if (checkDupe == null) //not not null, isnt added
+                            {
+                                //call add method
+                                trackList.AddLastNode(name, path);
+                                //axWindowsMediaPlayer.newPlaylist(name, path);
+                            }
+                        }
+                        else
+                        {
+                            trackList.AddLastNode(name, path);
+                            //axWindowsMediaPlayer.newPlaylist(name, path);
+                        }
                     }
-                    
-
-                    //declare the head of the list
-                    //Node<string> head = trackList.First.Value;
-                    //make a new head object in the place of the sorted list
+                    //null a new head object (useful if user adds files multiple times)
                     Node<string> newHead = null;
+                    //set the new head object to the first place of the sorted list
+                    //newHead = trackList.MergeSort(trackList.getHead());
                     newHead = trackList.MergeSort(trackList.getHead());
-                    //clear list (in case of adding songs multiple times)
-                    sortedTrackList.Clear();
-                    lbTracks.Items.Clear();
+                    //clear the sorted list (in case of user adding songs multiple times)
+                    sortedTrackList = new TrackLinkedList<string>();
+                    //use a temp node object to traverse the sorted head nodes and store them in the sorted linked list
                     Node<string> temp = newHead;
-
+                    //recursively add the nodes to sorted list
                     while (temp != null)
                     {
                         sortedTrackList.AddLastNode(temp.getName(), temp.getPath());
-                        lbTracks.Items.Add(temp.getName());
                         temp = temp.next;
                     }
-                    //{
-                       
-                    //    sortedTrackList.AddLast(temp);
-                    //    lbTracks.Items.Add(temp.name);
-                    //    temp = trackList.ElementAt(temp).Next;
-                    //}
-                    
-
-
-                    //head.next = trackList.First.Next;
-                    //now sort the linked list using merge sort method and head as input
-                    //Node<string> sortedHead = trackList.First.Value.mergeSort(trackList.First.Value);
-                    //create new linked list of sorted tracks
-
-                    //Node<string> temp = sortedHead;
-
-
-                    //if ((sortedHead != null) && (sortedTrackList.Count == 0))
-                    //{
-                    //    //add the new sorted nodes to a new linked list
-                    //    while (temp != null)
-                    //    {
-                    //        sortedTrackList.AddLast(temp);
-                    //        temp = temp.next;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    //clear the list
-                    //    for (int i = 0; i < sortedTrackList.Count; i++)
-                    //    {
-                    //        sortedTrackList.RemoveFirst();
-                    //    }
-                    //    //add the new sorted nodes to a new linked list
-                    //    while (temp != null)
-                    //    {
-                    //        sortedTrackList.AddLast(temp);
-                    //        temp = temp.next;
-                    //    }
-                    //}
-                    //pass this into a new linked list
-                    //if (sortedTrackList.Count == 0)
-                    //{
-                    //    sortedTrackList.AddFirst(sortedHead);
-                    //    Node<string> current = sortedHead.next;
-
-                    //    if (sortedHead.next != null)
-                    //    {
-                    //        //Node<string> current = sortedHead;
-                    //        while (current.next != null)
-                    //        {
-                    //            Node<string> previous = current;
-                    //            current = current.next;
-                    //            //    current = current.next;
-                    //            //    previous = current;
-                    //        }
-                    //    }
-                    //}
-                    //merge sort should return a sortedlinked list
-                    //pass into a new linkedlist
-
-
-
-                    //sortedHead.
                     //display sorted tracks in listBox
-
-                    //DisplayTracks(newHead);
+                    DisplayTracks();
                     //set current song to first in list
-                    //current = trackList.First();
-
+                    currentTrack = newHead;
+                    
                 }
-                
             }
         }
     
-        private void DisplayTracks(Node<string> newHead)
+        //method to display sorted track list in listbox
+        private void DisplayTracks()
         {
             lbTracks.Items.Clear();
-            Node<string> temp = newHead;
+            Node<string> temp = sortedTrackList.getHead();
             while (temp != null)
             {
                 lbTracks.Items.Add(temp.getName());
                 temp = temp.next;
             }
-            //if (sortedList.Count > 0)
-            //{
-            //    try
-            //    {
-            //        for (int i = 0; i < sortedList.Count; i++)
-            //        {
-            //            string item = trackList.ElementAt<Node<string>>(i).name;
-            //            lbTracks.Items.Add(item);
-            //        }
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        MessageBox.Show("something went wrong " + e);
-
-            //    }
-            //}
         }
 
+        //method to delete track from sorted list and listbox
         private void BtnDeleteTrack_Click(object sender, EventArgs e)
         {
-
+            if (lbTracks.SelectedIndex != -1)
+            {
+                string name = lbTracks.SelectedItem.ToString();
+                //sortedTrackList.BinarySearch(name);
+                DialogResult res = MessageBox.Show("Are you sure you want to delete this song?", "Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (res == DialogResult.Yes)
+                {
+                    sortedTrackList.Remove(name);
+                }
+            }
+            else
+            {
+                //please select a song to delete
+            }
+            DisplayTracks();
         }
 
         private void BtnClearAllTracks_Click(object sender, EventArgs e)
         {
-
+            DialogResult res = MessageBox.Show("Are you sure you want to delete all music?", "Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (res == DialogResult.Yes)
+            {
+                sortedTrackList = new TrackLinkedList<string>();
+                lbTracks.Items.Clear();
+            }
         }
 
-        private void BtnTrackSearch_Click(object sender, EventArgs e)
+        //method to search a custom user inpu string
+        private void BtnBinarySearch_Click(object sender, EventArgs e)
         {
-
+            if (sortedTrackList.getHead() != null)
+            {
+                string target = tbTrackSearch.Text;
+                Node<string> result = sortedTrackList.BinarySearch(target);
+                if (result != null)
+                {
+                    MessageBox.Show("Target " + result.getName() + " found...\nNow playing");
+                    currentTrack = result;
+                    PlayMusic(currentTrack);
+                    //status strip display result
+                }
+            }
+            else
+            {
+                MessageBox.Show("There aren't any songs to search!");
+            }
         }
 
+        //method for play button passes the string of the files' name to binary search to find path and play
         private void BtnPlay_Click(object sender, EventArgs e)
         {
-
+            //play selected index
+            if (lbTracks.SelectedIndex != -1)
+            {
+                lbTracks.SelectedItem = lbTracks.SelectedIndex;
+            }
+            else //else play first song in list
+            {
+                lbTracks.SelectedItem = sortedTrackList.getHead();
+            }
         }
 
+        //private play method used by most media player button functions
+        private void PlayMusic(Node<string> path)
+        {
+            try
+            {
+                //change pointer for current node
+                currentTrack = path;
+                //play song at given node's path attribute
+                axWindowsMediaPlayer.URL = path.getPath();
+            }
+            catch
+            {
+                //("Error: Cannot play");
+            }
+        }
+
+        //method to pause play
         private void BtnPause_Click(object sender, EventArgs e)
         {
-
+            axWindowsMediaPlayer.Ctlcontrols.pause();
         }
 
+        //method to stop play
         private void BtnStop_Click(object sender, EventArgs e)
         {
-
+            axWindowsMediaPlayer.Ctlcontrols.stop();
         }
 
+        //method to play next track in listbox
         private void BtnNext_Click(object sender, EventArgs e)
         {
             try
             {
-                //string next = sortedTrackList.Find(current).Next.Value;
-                //current = next;
-                //PlayTracks(current);
+                //axWindowsMediaPlayer.Ctlcontrols.next();
+                //Node<string> next = sortedTrackList.BinarySearch(currentTrack.getName()).next;
+                //change the selected index which calls the selected index changed method
+                lbTracks.SelectedItem = currentTrack.next.getName();
+                //PlayMusic(currentTrack);
             }
             catch
             {
@@ -450,13 +421,12 @@ namespace MusicPlayerProject
             }
         }
 
+        //method to play previous track in list, similar to next method
         private void BtnPrevious_Click(object sender, EventArgs e)
         {
             try
             {
-                //Track prev = sortedTrackList.Find(current).Previous.Value;
-                //current = prev;
-                //PlayTracks(current);
+                lbTracks.SelectedItem = currentTrack.prev.getName();
             }
             catch
             {
@@ -464,33 +434,93 @@ namespace MusicPlayerProject
             }
         }
 
-        //method to save track list to .csv
-        private void BtnSaveTrackList_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //method to play songs
-        private void PlayTracks(string track)
-        {
-            try
-            {
-                //axWindowsMediaPlayer.URL = track.Path;
-            }
-            catch
-            {
-                MessageBox.Show("Error: Cannot play");
-            }
-        }
-
         //method to set the selected tracks path and play it
         private void LbTracks_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string track = lbTracks.SelectedItem as string;
-            if (track != null)
+            if (lbTracks.SelectedIndex != -1)
             {
-                //axWindowsMediaPlayer.URL = track.Path;
-                axWindowsMediaPlayer.Ctlcontrols.play();
+                //search the title which returns a node, play the path of that node
+                string title = lbTracks.SelectedItem.ToString();
+                Node<string> current = sortedTrackList.BinarySearch(title);
+                currentTrack = current;
+                PlayMusic(currentTrack);
+            }
+        }
+
+        //method to save track list to .csv
+        private void BtnSaveTrackList_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog fileDialog = new SaveFileDialog() { Filter = "CSV|*.csv", ValidateNames = true })
+            {
+                if (fileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    using (StreamWriter streamWriter = new StreamWriter(fileDialog.FileName))
+                    using (CsvWriter csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
+                    {
+                        //make a list to store linked list objects to be written to csv as linked list has no enumerator
+                        List<Node<string>> records = new List<Node<string>>();
+                        //traverse sorted linked list and add nodes to new list for saving
+                        Node<string> temp = sortedTrackList.getHead();
+                        while (temp != null)
+                        {
+                            records.Add(temp);
+                            temp = temp.next;
+                        }                           
+                        //write headers
+                        streamWriter.WriteLine("Song Name,Song Path,Next Song Name,Next Song Path,Previous Song Name,Previous Song Path");
+                        //traverse the objects in the list writing the relevent info in columns
+                        foreach (var trackList in records)
+                        {
+                            if (trackList.prev == null)
+                            {
+                                csvWriter.WriteField(trackList.getName());
+                                csvWriter.WriteField(trackList.getPath());
+                                csvWriter.WriteField(trackList.next.getName());
+                                csvWriter.WriteField(trackList.next.getPath());
+                                csvWriter.WriteField("NULL");
+                                csvWriter.WriteField("NULL");
+                            }
+                            else if (trackList.next == null)
+                            {
+                                csvWriter.WriteField(trackList.getName());
+                                csvWriter.WriteField(trackList.getPath());
+                                csvWriter.WriteField("NULL");
+                                csvWriter.WriteField("NULL");
+                                csvWriter.WriteField(trackList.prev.getName());
+                                csvWriter.WriteField(trackList.prev.getPath());
+                            }
+                            else
+                            {
+                                csvWriter.WriteField(trackList.getName());
+                                csvWriter.WriteField(trackList.getPath());
+                                csvWriter.WriteField(trackList.next.getName());
+                                csvWriter.WriteField(trackList.next.getPath());
+                                csvWriter.WriteField(trackList.prev.getName());
+                                csvWriter.WriteField(trackList.prev.getPath());
+                            }//go to next record
+                            csvWriter.NextRecord();
+                        }
+                        //flush the stream
+                        streamWriter.Flush();
+                    }//once using block is exited, writer is automatically flushed
+                }
+            }
+        }//end csv writer
+
+        //method to load track list from .csv file
+        private void BtnLoadTrackList_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog fileDialog = new OpenFileDialog() { Filter = "CSV|*.csv", ValidateNames = true })
+            {
+                if (fileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    using (StreamReader streamReader = new StreamReader(new FileStream(fileDialog.FileName, FileMode.Open)))
+                    using (CsvReader csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+                    {
+                        //
+                        var records = csvReader.GetRecords<Node<string>>();
+                    }
+                }
             }
         }
 

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicPlayerProject
 {
@@ -12,7 +8,7 @@ namespace MusicPlayerProject
     {
         private T name;
         private T path;
-        public Node<T> next, prev;
+        public Node<T> next, prev = null;
 
         //constuctor to create a new node/track
         public Node(T name, T path)
