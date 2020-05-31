@@ -1,0 +1,10 @@
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\obj\Debug\ServerLoginIPC.csprojAssemblyReference.cache
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\obj\Debug\ServerLoginIPC.ServerLogin.resources
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\obj\Debug\ServerLoginIPC.Properties.Resources.resources
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\obj\Debug\ServerLoginIPC.csproj.GenerateResource.cache
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\obj\Debug\ServerLoginIPC.csproj.CoreCompileInputs.cache
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\bin\Debug\ServerLoginIPC.exe.config
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\bin\Debug\ServerLoginIPC.exe
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\bin\Debug\ServerLoginIPC.pdb
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\obj\Debug\ServerLoginIPC.exe
+F:\tafe\Dip\Programming\Visual Studio Projects\ServerLoginIPC\ServerLoginIPC\obj\Debug\ServerLoginIPC.pdb
