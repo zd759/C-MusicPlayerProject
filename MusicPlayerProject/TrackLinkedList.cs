@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace MusicPlayerProject
@@ -12,14 +10,13 @@ namespace MusicPlayerProject
     class TrackLinkedList<T> where T : IComparable<T>//, IEnumerable<T>
     {
         //head and tail nodes attributes of track list
-        Node<T> head, tail;
+        private Node<T> head, tail;
         //default constructor
         public TrackLinkedList()
         {
             this.head = null;
             this.tail = null;
         }
-
         //assessor methods for head and tail
         public Node<T> getHead()
         {
@@ -84,7 +81,7 @@ namespace MusicPlayerProject
             tail = temp;
         }
 
-        //method to get the middle of the list
+        //method to get the middle of the list used by merge sort method to split the list
         private Node<T> GetMiddle(Node<T> head)
         {
             //base case
@@ -173,6 +170,7 @@ namespace MusicPlayerProject
             }
         }
 
+        //method for binary search on a linked list
         public Node<T> BinarySearch(T target)
         {
             //bool found = false;
@@ -181,19 +179,20 @@ namespace MusicPlayerProject
             {
                 MessageBox.Show("Error: The track list is empty");
                 return null;
-            }
+            }//case if head is target, not part of a standard binary search
             //else if (head.getName().CompareTo(target) == 0)
             //{
             //    return head;
             //}
             Node<T> start = head, end = tail;
             //recursive search function
-            while ((end != null) || (!(start.getName().CompareTo(end.getName()) == 0)))
+            while ((end != null) || (!(start.getName().ToString().IndexOf(end.getName().ToString(), StringComparison.InvariantCultureIgnoreCase) == 0)))
             {
                 //find the middle of the list
                 Node<T> middle = GetMiddleNode(start, end);
                 //pointer++;
-                if (middle.getName().CompareTo(target) == 0)
+                //this implements a way to ignore the case of input string
+                if (middle.getName().ToString().IndexOf(target.ToString(), StringComparison.InvariantCultureIgnoreCase) == 0)
                 {
                     return middle;
                 }
@@ -210,6 +209,7 @@ namespace MusicPlayerProject
         }
 
         //method to find the middle of the list, must traverse the list so does not have good time complexity
+        //used by binary search
         private Node<T> GetMiddleNode(Node<T> start, Node<T> end)
         {
             if (start == null)
@@ -225,6 +225,7 @@ namespace MusicPlayerProject
             return slow;
         }
 
+        //method for adding a node calls this method when the list is > 1 to check for duplicate song names
         public Node<T> CheckForDuplicate(T name)
         {
             Node<T> temp = head;

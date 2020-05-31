@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CsvHelper; //using 3rd party library
 
@@ -31,7 +26,7 @@ namespace MusicPlayerProject
         private PipeClient pipeClient;
         //create instance of trackList linked list with node objects stored as items
         TrackLinkedList<string> trackList = new TrackLinkedList<string>();
-        //create another list for storing the final sorted list
+        //create another list for storing the final sorted list to be displayed to user
         TrackLinkedList<string> sortedTrackList = new TrackLinkedList<string>();
 
         //default contructor
@@ -44,7 +39,9 @@ namespace MusicPlayerProject
             btnSendMessage.Enabled = false;
             btnSecurityApp.Enabled = false;
             //DisableMediaPlayerButtons();
+            toolStripStatusLabel.Text = "";
         }//end constructor
+
         //--------------------PIPE CLIENT--------------------//
         //method to create a new pipe client
         void CreateNewPipeClient()
@@ -87,10 +84,12 @@ namespace MusicPlayerProject
                     btnDisconnectPipe.Enabled = true;
                     btnUserLogin.Enabled = true;
                     btnSendMessage.Enabled = true;
+                    toolStripStatusLabel.Text = ("Success: You have been connected to the server");
                 }
                 else
                 {
                     lbLogDisplay.Items.Add("Error: Connection failed");
+                    toolStripStatusLabel.Text = ("Error: Server connection failed");
                 }
             }
         }
@@ -104,6 +103,8 @@ namespace MusicPlayerProject
                 EnableStartButton();
                 lbLogDisplay.Items.Add("You have been manually disconnected from server");
                 btnDisconnectPipe.Enabled = false;
+                DisableMediaPlayerButtons();
+                toolStripStatusLabel.Text = ("Error: Server has been manually disconnected");
             }
         }
         //--------------------END PIPE CLIENT--------------------//
@@ -124,6 +125,7 @@ namespace MusicPlayerProject
         {
             tbUsername.Clear();
             tbPassword.Clear();
+            toolStripStatusLabel.Text = "";
         }//end clear method
 
         //--------------------END USERS GROUP BOX--------------------//
@@ -168,6 +170,7 @@ namespace MusicPlayerProject
                 lbLogDisplay.Items.Add("Server sent message: " + str);
                 btnSecurityApp.Enabled = true;
                 EnableMediaPlayerButtons();
+                toolStripStatusLabel.Text = "Success! Client successfully logged in to server";
             }//if username password string info
             else if (str.Contains("."))
             {
@@ -197,7 +200,6 @@ namespace MusicPlayerProject
         {
             MessageBox.Show("Security has been enabled due to successful server login!");
         }
-
         //--------------------END SECURITY APP--------------------//
 
         //--------------------MEDIA PLAYER GROUP BOX--------------------//
@@ -205,7 +207,7 @@ namespace MusicPlayerProject
         //global variable for current track
         Node<string> currentTrack = null;
 
-        //method to disable functions until login is successful
+        //method to disable functions until client login is successful
         private void DisableMediaPlayerButtons()
         {
             btnAddTracks.Enabled = false;
@@ -218,7 +220,6 @@ namespace MusicPlayerProject
             btnPrevious.Enabled = false;
             btnSaveTrackList.Enabled = false;
             btnBinarySearch.Enabled = false;
-
         }
         //method to enable functions once login is successful
         private void EnableMediaPlayerButtons()
@@ -235,6 +236,8 @@ namespace MusicPlayerProject
             btnBinarySearch.Enabled = true;
         }
 
+        //method to add user selected files (of certain audio formats) to listbox
+        //and to the linked list, while also sorting them with a merge sort
         private void BtnAddTracks_Click(object sender, EventArgs e)
         {
             //use open file dialog
@@ -242,6 +245,7 @@ namespace MusicPlayerProject
             {
                 Multiselect = true,
                 //InitialDirectory = ".\",
+                //accepted files types
                 Filter = "WMA|*.wma|WMV|*.wmv|WAV|*wav|MP3|*.mp3|MP4|*.mp4|MKV|*.mkv"
             })
             {
@@ -251,6 +255,7 @@ namespace MusicPlayerProject
                     //set the sorted track list to the unsorted - used if user add files multiple times
                     //this serves to correct the node values of 'next' and 'prev' in the unsorted list 
                     trackList = sortedTrackList;
+                    //loop through the selected files and add as nodes to linked list
                     foreach (string fileName in fileDialog.FileNames)
                     {
                         //put this info into a file object
@@ -266,25 +271,21 @@ namespace MusicPlayerProject
                             {
                                 //call add method
                                 trackList.AddLastNode(name, path);
-                                //axWindowsMediaPlayer.newPlaylist(name, path);
                             }
                         }
                         else
                         {
                             trackList.AddLastNode(name, path);
-                            //axWindowsMediaPlayer.newPlaylist(name, path);
                         }
                     }
                     //null a new head object (useful if user adds files multiple times)
                     Node<string> newHead = null;
                     //set the new head object to the first place of the sorted list
-                    //newHead = trackList.MergeSort(trackList.getHead());
                     newHead = trackList.MergeSort(trackList.getHead());
                     //clear the sorted list (in case of user adding songs multiple times)
                     sortedTrackList = new TrackLinkedList<string>();
                     //use a temp node object to traverse the sorted head nodes and store them in the sorted linked list
                     Node<string> temp = newHead;
-                    //recursively add the nodes to sorted list
                     while (temp != null)
                     {
                         sortedTrackList.AddLastNode(temp.getName(), temp.getPath());
@@ -294,9 +295,9 @@ namespace MusicPlayerProject
                     DisplayTracks();
                     //set current song to first in list
                     currentTrack = newHead;
-                    
                 }
             }
+            toolStripStatusLabel.Text = "Success! Tracks have been added";
         }
     
         //method to display sorted track list in listbox
@@ -317,8 +318,8 @@ namespace MusicPlayerProject
             if (lbTracks.SelectedIndex != -1)
             {
                 string name = lbTracks.SelectedItem.ToString();
-                //sortedTrackList.BinarySearch(name);
-                DialogResult res = MessageBox.Show("Are you sure you want to delete this song?", "Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                DialogResult res = MessageBox.Show(
+                    "Are you sure you want to delete this track?", "Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (res == DialogResult.Yes)
                 {
                     sortedTrackList.Remove(name);
@@ -326,7 +327,7 @@ namespace MusicPlayerProject
             }
             else
             {
-                //please select a song to delete
+                toolStripStatusLabel.Text = "Error: Please select a track to delete";
             }
             DisplayTracks();
         }
@@ -339,6 +340,8 @@ namespace MusicPlayerProject
                 sortedTrackList = new TrackLinkedList<string>();
                 lbTracks.Items.Clear();
             }
+            currentTrack = null;
+            toolStripStatusLabel.Text = "All tracks cleared";
         }
 
         //method to search a custom user inpu string
@@ -350,29 +353,14 @@ namespace MusicPlayerProject
                 Node<string> result = sortedTrackList.BinarySearch(target);
                 if (result != null)
                 {
-                    MessageBox.Show("Target " + result.getName() + " found...\nNow playing");
-                    currentTrack = result;
                     PlayMusic(currentTrack);
                     //status strip display result
+                    toolStripStatusLabel.Text = "Target " + result.getName() + " found... Now playing";
                 }
             }
             else
             {
-                MessageBox.Show("There aren't any songs to search!");
-            }
-        }
-
-        //method for play button passes the string of the files' name to binary search to find path and play
-        private void BtnPlay_Click(object sender, EventArgs e)
-        {
-            //play selected index
-            if (lbTracks.SelectedIndex != -1)
-            {
-                lbTracks.SelectedItem = lbTracks.SelectedIndex;
-            }
-            else //else play first song in list
-            {
-                lbTracks.SelectedItem = sortedTrackList.getHead();
+                toolStripStatusLabel.Text = "Error: There aren't any songs to search!";
             }
         }
 
@@ -388,14 +376,35 @@ namespace MusicPlayerProject
             }
             catch
             {
-                //("Error: Cannot play");
+                toolStripStatusLabel.Text = "Error: Cannot play!";
+            }
+        }
+
+        //button method for play changes selected index to play
+        private void BtnPlay_Click(object sender, EventArgs e)
+        {
+            //play selected index
+            if (lbTracks.SelectedIndex != -1)
+            {
+                axWindowsMediaPlayer.Ctlcontrols.play();
+            }
+            else //else play first song in list
+            {
+                lbTracks.SelectedItem = sortedTrackList.getHead().getName();
             }
         }
 
         //method to pause play
         private void BtnPause_Click(object sender, EventArgs e)
         {
-            axWindowsMediaPlayer.Ctlcontrols.pause();
+            if (axWindowsMediaPlayer.playState == WMPLib.WMPPlayState.wmppsPlaying)
+            {
+                axWindowsMediaPlayer.Ctlcontrols.pause();
+            }
+            else
+            {
+                axWindowsMediaPlayer.Ctlcontrols.play();
+            }
         }
 
         //method to stop play
@@ -404,24 +413,24 @@ namespace MusicPlayerProject
             axWindowsMediaPlayer.Ctlcontrols.stop();
         }
 
-        //method to play next track in listbox
+        //method to play next track in listbox, just changes to selected index thus passing to selected index method
         private void BtnNext_Click(object sender, EventArgs e)
         {
             try
             {
                 //axWindowsMediaPlayer.Ctlcontrols.next();
                 //Node<string> next = sortedTrackList.BinarySearch(currentTrack.getName()).next;
+
                 //change the selected index which calls the selected index changed method
                 lbTracks.SelectedItem = currentTrack.next.getName();
-                //PlayMusic(currentTrack);
             }
             catch
             {
-                MessageBox.Show("Error: Cannot play next song");
+                toolStripStatusLabel.Text = "Error: There is no next song to play";
             }
         }
 
-        //method to play previous track in list, similar to next method
+        //method to play previous track in list, similar to next button method
         private void BtnPrevious_Click(object sender, EventArgs e)
         {
             try
@@ -430,7 +439,7 @@ namespace MusicPlayerProject
             }
             catch
             {
-                MessageBox.Show("Error: Cannot play previous song");
+                toolStripStatusLabel.Text = "Error: There is no previous song to play";
             }
         }
 
@@ -465,9 +474,9 @@ namespace MusicPlayerProject
                         {
                             records.Add(temp);
                             temp = temp.next;
-                        }                           
+                        }
                         //write headers
-                        streamWriter.WriteLine("Song Name,Song Path,Next Song Name,Next Song Path,Previous Song Name,Previous Song Path");
+                        //streamWriter.WriteLine("Song Name,Song Path");//,Next Song Name,Next Song Path,Previous Song Name,Previous Song Path");
                         //traverse the objects in the list writing the relevent info in columns
                         foreach (var trackList in records)
                         {
@@ -475,28 +484,28 @@ namespace MusicPlayerProject
                             {
                                 csvWriter.WriteField(trackList.getName());
                                 csvWriter.WriteField(trackList.getPath());
-                                csvWriter.WriteField(trackList.next.getName());
-                                csvWriter.WriteField(trackList.next.getPath());
-                                csvWriter.WriteField("NULL");
-                                csvWriter.WriteField("NULL");
+                                //csvWriter.WriteField(trackList.next.getName());
+                                //csvWriter.WriteField(trackList.next.getPath());
+                                //csvWriter.WriteField("NULL");
+                                //csvWriter.WriteField("NULL");
                             }
                             else if (trackList.next == null)
                             {
                                 csvWriter.WriteField(trackList.getName());
                                 csvWriter.WriteField(trackList.getPath());
-                                csvWriter.WriteField("NULL");
-                                csvWriter.WriteField("NULL");
-                                csvWriter.WriteField(trackList.prev.getName());
-                                csvWriter.WriteField(trackList.prev.getPath());
+                                //csvWriter.WriteField("NULL");
+                                //csvWriter.WriteField("NULL");
+                                //csvWriter.WriteField(trackList.prev.getName());
+                                //csvWriter.WriteField(trackList.prev.getPath());
                             }
                             else
                             {
                                 csvWriter.WriteField(trackList.getName());
                                 csvWriter.WriteField(trackList.getPath());
-                                csvWriter.WriteField(trackList.next.getName());
-                                csvWriter.WriteField(trackList.next.getPath());
-                                csvWriter.WriteField(trackList.prev.getName());
-                                csvWriter.WriteField(trackList.prev.getPath());
+                                //csvWriter.WriteField(trackList.next.getName());
+                                //csvWriter.WriteField(trackList.next.getPath());
+                                //csvWriter.WriteField(trackList.prev.getName());
+                                //csvWriter.WriteField(trackList.prev.getPath());
                             }//go to next record
                             csvWriter.NextRecord();
                         }
@@ -505,24 +514,27 @@ namespace MusicPlayerProject
                     }//once using block is exited, writer is automatically flushed
                 }
             }
+            toolStripStatusLabel.Text = "Success: Track list saved to file";
         }//end csv writer
 
         //method to load track list from .csv file
-        private void BtnLoadTrackList_Click(object sender, EventArgs e)
-        {
-            using (OpenFileDialog fileDialog = new OpenFileDialog() { Filter = "CSV|*.csv", ValidateNames = true })
-            {
-                if (fileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    using (StreamReader streamReader = new StreamReader(new FileStream(fileDialog.FileName, FileMode.Open)))
-                    using (CsvReader csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
-                    {
-                        //
-                        var records = csvReader.GetRecords<Node<string>>();
-                    }
-                }
-            }
-        }
+        //private void BtnLoadTrackList_Click(object sender, EventArgs e)
+        //{
+        //    using (OpenFileDialog fileDialog = new OpenFileDialog() { Filter = "CSV|*.csv", ValidateNames = true })
+        //    {
+        //        if (fileDialog.ShowDialog() == DialogResult.OK)
+        //        {
+        //            using (StreamReader streamReader = new StreamReader(new FileStream(fileDialog.FileName, FileMode.Open)))
+        //            using (CsvReader csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+        //            {
+        //                while (csvReader.Read())
+        //                {
+        //                }
+        //            }
+        //        }
+                
+        //    }
+        //}
 
         //--------------------END MEDIA PLAYER GROUP BOX--------------------//
     }
